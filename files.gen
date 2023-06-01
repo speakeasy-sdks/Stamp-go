@@ -1,6 +1,7 @@
 auth.go
 post.go
 stampapi.go
+.gitignore
 go.mod
 go.sum
 pkg/types/bigint.go

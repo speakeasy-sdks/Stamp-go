@@ -60,7 +60,7 @@ func main() {
 
     ctx := context.Background()
     res, err := s.Auth.RefreshToken(ctx, operations.RefreshTokenSecurity{
-        Jwt: "YOUR_BEARER_TOKEN_HERE",
+        Jwt: "",
     })
     if err != nil {
         log.Fatal(err)

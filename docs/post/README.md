@@ -32,7 +32,7 @@ func main() {
         RootDomain: "corrupti",
         Title: "Dr.",
     }, operations.CreatePostSecurity{
-        Jwt: "YOUR_BEARER_TOKEN_HERE",
+        Jwt: "",
     })
     if err != nil {
         log.Fatal(err)

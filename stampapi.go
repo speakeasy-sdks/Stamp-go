@@ -4,6 +4,7 @@ package stampapi
 
 import (
 	"StampApi/pkg/utils"
+	"fmt"
 	"net/http"
 	"time"
 )
@@ -36,20 +37,33 @@ func Float32(f float32) *float32 { return &f }
 // Float64 provides a helper function to return a pointer to a float64
 func Float64(f float64) *float64 { return &f }
 
-// StampAPI - Stamp API
+type sdkConfiguration struct {
+	DefaultClient  HTTPClient
+	SecurityClient HTTPClient
+
+	ServerURL         string
+	ServerIndex       int
+	Language          string
+	OpenAPIDocVersion string
+	SDKVersion        string
+	GenVersion        string
+}
+
+func (c *sdkConfiguration) GetServerDetails() (string, map[string]string) {
+	if c.ServerURL != "" {
+		return c.ServerURL, nil
+	}
+
+	return ServerList[c.ServerIndex], nil
+}
+
+// StampAPI - Stamp API: Stamp API
 // https://swagger.io/specification/ - Find out more about Open API specification
 type StampAPI struct {
 	Auth *auth
 	Post *post
 
-	// Non-idiomatic field names below are to namespace fields from the fields names above to avoid name conflicts
-	_defaultClient  HTTPClient
-	_securityClient HTTPClient
-
-	_serverURL  string
-	_language   string
-	_sdkVersion string
-	_genVersion string
+	sdkConfiguration sdkConfiguration
 }
 
 type SDKOption func(*StampAPI)
@@ -57,7 +71,7 @@ type SDKOption func(*StampAPI)
 // WithServerURL allows the overriding of the default server URL
 func WithServerURL(serverURL string) SDKOption {
 	return func(sdk *StampAPI) {
-		sdk._serverURL = serverURL
+		sdk.sdkConfiguration.ServerURL = serverURL
 	}
 }
 
@@ -68,57 +82,53 @@ func WithTemplatedServerURL(serverURL string, params map[string]string) SDKOptio
 			serverURL = utils.ReplaceParameters(serverURL, params)
 		}
 
-		sdk._serverURL = serverURL
+		sdk.sdkConfiguration.ServerURL = serverURL
+	}
+}
+
+// WithServerIndex allows the overriding of the default server by index
+func WithServerIndex(serverIndex int) SDKOption {
+	return func(sdk *StampAPI) {
+		if serverIndex < 0 || serverIndex >= len(ServerList) {
+			panic(fmt.Errorf("server index %d out of range", serverIndex))
+		}
+
+		sdk.sdkConfiguration.ServerIndex = serverIndex
 	}
 }
 
 // WithClient allows the overriding of the default HTTP client used by the SDK
 func WithClient(client HTTPClient) SDKOption {
 	return func(sdk *StampAPI) {
-		sdk._defaultClient = client
+		sdk.sdkConfiguration.DefaultClient = client
 	}
 }
 
 // New creates a new instance of the SDK with the provided options
 func New(opts ...SDKOption) *StampAPI {
 	sdk := &StampAPI{
-		_language:   "go",
-		_sdkVersion: "1.2.0",
-		_genVersion: "2.34.2",
+		sdkConfiguration: sdkConfiguration{
+			Language:          "go",
+			OpenAPIDocVersion: "1.0.0",
+			SDKVersion:        "1.3.0",
+			GenVersion:        "2.37.0",
+		},
 	}
 	for _, opt := range opts {
 		opt(sdk)
 	}
 
 	// Use WithClient to override the default client if you would like to customize the timeout
-	if sdk._defaultClient == nil {
-		sdk._defaultClient = &http.Client{Timeout: 60 * time.Second}
+	if sdk.sdkConfiguration.DefaultClient == nil {
+		sdk.sdkConfiguration.DefaultClient = &http.Client{Timeout: 60 * time.Second}
 	}
-	if sdk._securityClient == nil {
-		sdk._securityClient = sdk._defaultClient
-	}
-
-	if sdk._serverURL == "" {
-		sdk._serverURL = ServerList[0]
+	if sdk.sdkConfiguration.SecurityClient == nil {
+		sdk.sdkConfiguration.SecurityClient = sdk.sdkConfiguration.DefaultClient
 	}
 
-	sdk.Auth = newAuth(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
+	sdk.Auth = newAuth(sdk.sdkConfiguration)
 
-	sdk.Post = newPost(
-		sdk._defaultClient,
-		sdk._securityClient,
-		sdk._serverURL,
-		sdk._language,
-		sdk._sdkVersion,
-		sdk._genVersion,
-	)
+	sdk.Post = newPost(sdk.sdkConfiguration)
 
 	return sdk
 }

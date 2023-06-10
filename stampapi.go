@@ -110,8 +110,8 @@ func New(opts ...SDKOption) *StampAPI {
 		sdkConfiguration: sdkConfiguration{
 			Language:          "go",
 			OpenAPIDocVersion: "1.0.0",
-			SDKVersion:        "1.3.0",
-			GenVersion:        "2.37.0",
+			SDKVersion:        "1.4.0",
+			GenVersion:        "2.39.0",
 		},
 	}
 	for _, opt := range opts {

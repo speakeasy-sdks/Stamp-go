@@ -43,15 +43,15 @@ func main() {
 ## Available Resources and Operations
 
 
-### [Auth](docs/auth/README.md)
+### [Auth](docs/sdks/auth/README.md)
 
-* [LogIn](docs/auth/README.md#login) - log in or sign up to stamp with an external auth provider
-* [RefreshToken](docs/auth/README.md#refreshtoken) - exchange token in header for a new one
+* [LogIn](docs/sdks/auth/README.md#login) - log in or sign up to stamp with an external auth provider
+* [RefreshToken](docs/sdks/auth/README.md#refreshtoken) - exchange token in header for a new one
 
-### [Post](docs/post/README.md)
+### [Post](docs/sdks/post/README.md)
 
-* [CreatePost](docs/post/README.md#createpost) - create a new post
-* [GetRecentPosts](docs/post/README.md#getrecentposts) - get a list of most recent posts
+* [CreatePost](docs/sdks/post/README.md#createpost) - create a new post
+* [GetRecentPosts](docs/sdks/post/README.md#getrecentposts) - get a list of most recent posts
 <!-- End SDK Available Operations -->
 
 ### Maturity
